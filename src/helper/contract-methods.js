@@ -21,3 +21,7 @@ export const getPriceFeeds = async (coinPairAddress) => {
     (roundData.answer.toString() / Math.pow(10, decimals)).toFixed(2)
   );
 };
+
+export const getRoundsInfo = async (contract, pair) => {
+  return await contract.getPairRounds(pair);
+};
