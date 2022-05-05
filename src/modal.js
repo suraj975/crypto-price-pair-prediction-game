@@ -36,46 +36,6 @@ export default function SelectWalletModal({ isOpen, closeModal }) {
             <Button
               variant="outline"
               onClick={() => {
-                activate(connectors.coinbaseWallet);
-                setProvider("coinbaseWallet");
-                closeModal();
-              }}
-              w="100%"
-            >
-              <HStack w="100%" justifyContent="center">
-                <Image
-                  src="/cbw.png"
-                  alt="Coinbase Wallet Logo"
-                  width={25}
-                  height={25}
-                  borderRadius="3px"
-                />
-                <Text>Coinbase Wallet</Text>
-              </HStack>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                activate(connectors.walletConnect);
-                setProvider("walletConnect");
-                closeModal();
-              }}
-              w="100%"
-            >
-              <HStack w="100%" justifyContent="center">
-                <Image
-                  src="/wc.png"
-                  alt="Wallet Connect Logo"
-                  width={26}
-                  height={26}
-                  borderRadius="3px"
-                />
-                <Text>Wallet Connect</Text>
-              </HStack>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
                 activate(connectors.injected);
                 setProvider("injected");
                 closeModal();
