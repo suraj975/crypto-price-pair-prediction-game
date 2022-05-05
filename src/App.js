@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <Round />
+      <Round pair={1} />
     </>
   );
 }

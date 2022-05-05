@@ -7,11 +7,14 @@ import {
   ETH_USD_MATIC_MAINNET_ADDRESS,
   BTC_USD_MATIC_MAINNET_ADDRESS,
   RINKEBY_CONTRACT_ADDRESS,
+  pairTypes,
 } from "../../helper/constant";
 import { useRounds } from "../../hooks/use-rounds";
 import { usePriceFeeds } from "../../hooks/use-price-feeds";
 import { CountDownTimer } from "./countdown";
 import { Progress } from "@chakra-ui/react";
+import { ButtonWrapper } from "./bet-buttons-wrapper";
+import { ethers } from "ethers";
 
 const convertPriceUptoTwoDecimal = (price) => {
   return (price / 100000000).toFixed(2);
@@ -66,11 +69,18 @@ const TokenWrapper = ({ path, tokenRoundFixedPrice, pair, color }) => {
   );
 };
 
-const RoundInfoWrapper = ({ endTimeStamp, poolAmount }) => {
+const RoundInfoWrapper = ({ endTimeStamp, poolAmount, winner, roundEnded }) => {
   return (
     <Stack>
       <CountDownTimer time={Number(endTimeStamp) * 1000} />
-      <Text fontWeight="bold">Pool : {poolAmount}</Text>
+      <Text text-align="center" fontWeight="bold">
+        Pool : {poolAmount}
+      </Text>
+      {roundEnded && (
+        <Text text-align="center" color="teal.300" fontWeight="bold">
+          {winner()} WINS
+        </Text>
+      )}
     </Stack>
   );
 };
@@ -84,7 +94,12 @@ const calculateTimeBasedProgress = (endTimeStamp) => {
   return data.toFixed(0);
 };
 
-const RoundHeader = ({ roundNumber, roundStatus, endTimeStamp }) => {
+const RoundHeader = ({
+  roundNumber,
+  roundStatus,
+  endTimeStamp,
+  isRoundLive,
+}) => {
   const timeProgressRatio = calculateTimeBasedProgress(endTimeStamp);
 
   return (
@@ -100,14 +115,44 @@ const RoundHeader = ({ roundNumber, roundStatus, endTimeStamp }) => {
           #{roundNumber}
         </Text>
       </Flex>
-      {roundNumber === 15 && (
+      {isRoundLive && (
         <Progress colorScheme="purple" value={timeProgressRatio} />
       )}
     </Box>
   );
 };
 
-export const Round = () => {
+const RoundProgressWrapper = ({ progress }) => {
+  const dominancePercentage = progress?.ratioOfPercentageChanges ?? 50;
+  return (
+    <Box marginX="1" mb="4">
+      <Text fontWeight="bold">Dominance</Text>
+      <Progress
+        colorScheme={"pink"}
+        hasStripe
+        size="lg"
+        sx={{
+          backgroundSize: "1rem 1rem",
+          backgroundColor: "#805AD5 !important",
+          backgroundImage:
+            "linear-gradient( 45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 75%, transparent 75%, transparent )",
+          div: {
+            backgroundColor: "#ED64A6 !important",
+          },
+        }}
+        value={dominancePercentage}
+      />
+      <Flex justifyContent="space-between">
+        <Text fontWeight="bold">{dominancePercentage.toFixed(0)}%</Text>
+        <Text fontWeight="bold">
+          {(100 - dominancePercentage).toFixed(0)}%{" "}
+        </Text>
+      </Flex>
+    </Box>
+  );
+};
+
+export const Round = ({ pair }) => {
   const { library } = useWeb3React();
   const signer = library?.getSigner();
   const cryptoPredictionContract = getContractInstance(
@@ -116,12 +161,22 @@ export const Round = () => {
     signer
   );
 
+  const roundWinner = (round) => {
+    const winner =
+      round.firstTokenPriceChange === round.secondTokenPriceChange
+        ? 0
+        : round.firstTokenPriceChange > round.secondTokenPriceChange
+        ? 1
+        : 2;
+
+    return winner === 0 ? "" : pairTypes[pair][winner];
+  };
+
   const rounds = useRounds(cryptoPredictionContract, signer);
   // const currentPairsPriceFeeds = usePriceFeeds([
   //   BTC_USD_MATIC_MAINNET_ADDRESS,
   //   ETH_USD_MATIC_MAINNET_ADDRESS,
   // ]);
-  console.log("currentPairsPriceFseeds---", rounds);
   return (
     <Flex flexWrap="wrap">
       {rounds?.map((round) => {
@@ -130,80 +185,68 @@ export const Round = () => {
           : round?.roundLock
           ? "LIVE"
           : "NEXT";
+        const isRoundLive = round?.roundLock && !round?.roundEnded;
+        const isNextRound = round?.roundStart && !round?.roundLock;
         const percentageRationCalulation =
-          round?.roundNumber === 15 &&
+          isRoundLive &&
           tokenPercentageChangeCalculation(
             round?.firstTokenPrice,
             round?.secondTokenPrice,
             []
           );
+        console.log("round---", round);
         return (
           <Box
-            w="500px"
             m="2"
             key={round?.roundNumber}
-            borderColor={
-              round?.roundEnded ? "red" : round?.roundLock ? "yellow" : "green"
-            }
             borderWidth="1px"
             backgroundOrigin="border-box"
             backgroundClip={"content-box, border-box"}
             backgroundSize="cover"
             boxSizing="border-box"
-            boxShadow="0 0 5px 5px rgba(0, 0, 0, 0.5)"
-            border="16px solid transparent"
-            borderImage="linear-gradient(45deg, red , yellow)"
+            borderRadius="5px"
+            boxShadow="0 0 3px 5px rgba(0, 0, 0, 0.5)"
+            border="2px solid transparent"
+            background={
+              !round?.roundEnded
+                ? "linear-gradient(90deg, rgba(128,90,213,1) 0%, rgba(237,100,166,1) 100%)"
+                : "none"
+            }
           >
-            <RoundHeader
-              roundNumber={round?.roundNumber}
-              roundStatus={roundStatus}
-              endTimeStamp={round?.endTimeStamp}
-            />
-            <Flex mb="10" justifyContent="space-between" alignItems="center">
-              <TokenWrapper
-                path={"./btc.svg"}
-                pair={"BTC-USD"}
-                color={"#ED64A6"}
-                tokenRoundFixedPrice={round?.firstTokenPrice}
-              />
-              <RoundInfoWrapper
+            <Box h="100%" background="gray.800" w="500px">
+              <RoundHeader
+                roundNumber={round?.roundNumber}
+                roundStatus={roundStatus}
                 endTimeStamp={round?.endTimeStamp}
-                poolAmount={round?.poolTokenBaseAmount}
+                isRoundLive={isRoundLive}
               />
-              <TokenWrapper
-                path={"./eth.svg"}
-                pair={"ETH-USD"}
-                color={"#805AD5"}
-                tokenRoundFixedPrice={round?.secondTokenPrice}
-              />
-            </Flex>
-            {round?.roundNumber === 15 && (
-              <Progress
-                colorScheme={"pink"}
-                hasStripe
-                size="lg"
-                sx={{
-                  backgroundSize: "1rem 1rem",
-                  backgroundColor: "#805AD5 !important",
-                  backgroundImage:
-                    "linear-gradient( 45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 75%, transparent 75%, transparent )",
-                  div: {
-                    backgroundColor: "#ED64A6 !important",
-                  },
-                }}
-                value={
-                  percentageRationCalulation?.ratioOfPercentageChanges ?? 50
-                }
-              />
-            )}
-            <Flex mb="2">
-              <Button mx="2" colorScheme="pink" flex="1">
-                Bet BTC
-              </Button>
-              <Button mx="2" colorScheme="purple" flex="1">
-                Bet ETH
-              </Button>
-            </Flex>
+              <Flex mb="10" justifyContent="space-between" alignItems="center">
+                <TokenWrapper
+                  path={"./btc.svg"}
+                  pair={"BTC-USD"}
+                  color={"#ED64A6"}
+                  tokenRoundFixedPrice={round?.firstTokenPrice}
+                />
+                <RoundInfoWrapper
+                  endTimeStamp={round?.endTimeStamp}
+                  poolAmount={ethers.utils.formatEther(round?.poolAmount)}
+                  winner={() => roundWinner(round)}
+                  roundEnded={round?.roundEnded}
+                />
+                <TokenWrapper
+                  path={"./eth.svg"}
+                  pair={"ETH-USD"}
+                  color={"#805AD5"}
+                  tokenRoundFixedPrice={round?.secondTokenPrice}
+                />
+              </Flex>
+              {isRoundLive && (
+                <RoundProgressWrapper progress={percentageRationCalulation} />
+              )}
+              {isNextRound && (
+                <ButtonWrapper pair={1} pairRound={round?.roundNumber} />
+              )}
+            </Box>
           </Box>
         );
       })}

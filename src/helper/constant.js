@@ -11,3 +11,10 @@ export const ETH_USD_MATIC_MAINNET_ADDRESS =
   "0xF9680D99D6C9589e2a93a78A04A279e509205945";
 export const BTC_USD_MATIC_MAINNET_ADDRESS =
   "0xc907E116054Ad103354f2D350FD2514433D57F6f";
+
+export const pairTypes = {
+  1: {
+    1: "BTC-USD",
+    2: "ETH-USD",
+  },
+};
