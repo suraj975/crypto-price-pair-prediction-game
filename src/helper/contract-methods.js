@@ -25,3 +25,11 @@ export const getPriceFeeds = async (coinPairAddress) => {
 export const getRoundsInfo = async (contract, pair) => {
   return await contract.getPairRounds(pair);
 };
+
+export const getPairRounds = async (contract, pair) => {
+  return await contract.getUserRounds(pair);
+};
+
+export const claimReward = async (contract, pair, pairRound) => {
+  return await contract.claimReward(pairRound, pair);
+};

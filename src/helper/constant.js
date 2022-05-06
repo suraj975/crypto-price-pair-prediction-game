@@ -1,5 +1,5 @@
 export const RINKEBY_CONTRACT_ADDRESS =
-  "0x7987ae11AcCCF6A522d35513e5371f7bBC0e61Ec";
+  "0x87b93b1178d1116F889C18762a76391a73a875b3";
 
 // Chainlink Price feeds address https://docs.chain.link/docs/ethereum-addresses/
 export const ETH_USD_RINKEBY_ADDRESS =
@@ -11,3 +11,16 @@ export const ETH_USD_MATIC_MAINNET_ADDRESS =
   "0xF9680D99D6C9589e2a93a78A04A279e509205945";
 export const BTC_USD_MATIC_MAINNET_ADDRESS =
   "0xc907E116054Ad103354f2D350FD2514433D57F6f";
+
+export const pairTypes = {
+  1: {
+    1: "BTC-USD",
+    2: "ETH-USD",
+    comaparison: "BTC Vs USD",
+  },
+  2: {
+    1: "ADA-USD",
+    2: "MATIC-USD",
+    comaparison: "ADA Vs MATIC",
+  },
+};
