@@ -22,6 +22,7 @@ import {
 import { RINKEBY_CONTRACT_ADDRESS } from "../../helper/constant";
 import cryptoPricePrediction from "../../contracts/CryproPairPricePredictionFactory.json";
 import { useGetUsers } from "../../hooks/use-get-users";
+import { useRounds } from "../../hooks/use-rounds";
 
 function BettingAmountModal({
   isOpen,
@@ -32,7 +33,6 @@ function BettingAmountModal({
   tokenBetAction,
 }) {
   const betType = buttonRefType?.current === 1 ? "BTC-USD" : "ETH-USD";
-  console.log("betType----", betType);
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -50,7 +50,7 @@ function BettingAmountModal({
                 <Input
                   type="text"
                   value={value ?? 0.0002}
-                  placeHolder="Bet Amount"
+                  placeholder="Bet Amount"
                   min={0.0001}
                   onChange={(e) => setValue(e?.target.value)}
                 />
@@ -81,7 +81,7 @@ function BettingAmountModal({
 
 export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
   const { library } = useWeb3React();
-  const [value, setValue] = React.useState(0.001);
+  const [value, setValue] = React.useState(0.0002);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const buttonRefType = React.useRef(null);
   const [loading, setLoading] = React.useState(false);
@@ -92,8 +92,8 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
     cryptoPricePrediction.abi,
     signer
   );
+  useRounds(cryptoPredictionContract, signer);
   const users = useGetUsers(cryptoPredictionContract, signer, allRounds);
-  console.log("users----", users);
 
   const openModalAction = (type) => {
     buttonRefType.current = type;
@@ -104,10 +104,9 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
     try {
       setLoading(true);
       const tx = await claimReward(cryptoPredictionContract, pair, pairRound);
-      tx.wait();
+      await tx.wait();
       setLoading(false);
     } catch (error) {
-      console.log("Claim Error----", error);
       setLoading(false);
     }
   };
@@ -118,7 +117,6 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
 
   const tokenBetAction = async (type) => {
     const actionButtonType = type === 1 ? "firstTokenBet" : "secondTokenBet";
-    console.log("actionButtonType actionButtonType----", actionButtonType);
     try {
       setLoading(true);
       const tx = await cryptoPredictionContract[actionButtonType](
@@ -128,41 +126,43 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
           value: ethers.utils.parseUnits(value.toString(), "ether"),
         }
       );
-      tx.wait();
       onClose();
-    } catch (error) {
-      console.log("BetAction Error----", error);
-      onClose();
+      await tx.wait();
       setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      onClose();
     }
-    setLoading(false);
   };
 
   const hasWon =
     round?.roundEnded &&
     !users?.[round.roundNumber]?.claim &&
     users?.[round.roundNumber]?.isWinner;
+  const isBetTaken = users?.[round.roundNumber]?.amount > 0;
   const isNextRound =
     round?.roundStart && !round?.roundLock && Number(round?.endTimeStamp) !== 0;
   return (
-    <Flex mb="2">
+    <Flex>
       {!hasWon && isNextRound && (
         <>
           <Button
             onClick={() => openModalAction(1)}
-            mx="2"
             isLoading={loading && buttonRefType.current === 1}
             colorScheme="pink"
             flex="1"
+            mx="2"
+            isDisabled={isBetTaken}
           >
             Bet BTC
           </Button>
           <Button
             onClick={() => openModalAction(2)}
             isLoading={loading && buttonRefType.current === 2}
-            mx="2"
             colorScheme="purple"
             flex="1"
+            mx="2"
+            isDisabled={isBetTaken}
           >
             Bet ETH
           </Button>
@@ -171,10 +171,10 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
       {hasWon && (
         <Button
           onClick={getReward}
-          mx="2"
-          isLoading={loading && buttonRefType.current === 1}
           colorScheme="pink"
           flex="1"
+          mx="2"
+          isLoading={loading}
         >
           Claim
         </Button>

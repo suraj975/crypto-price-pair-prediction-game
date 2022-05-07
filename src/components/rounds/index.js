@@ -15,6 +15,7 @@ import { CountDownTimer } from "./countdown";
 import { Progress } from "@chakra-ui/react";
 import { ButtonWrapper } from "./bet-buttons-wrapper";
 import { ethers } from "ethers";
+import { useGetUsers } from "../../hooks/use-get-users";
 
 const convertPriceUptoTwoDecimal = (price) => {
   return (price / 100000000).toFixed(2);
@@ -69,8 +70,13 @@ const TokenWrapper = ({ path, tokenRoundFixedPrice, pair, color }) => {
   );
 };
 
-const RoundInfoWrapper = ({ endTimeStamp, poolAmount, winner, roundEnded }) => {
-  console.log("typeof poolAmount", typeof poolAmount);
+const RoundInfoWrapper = ({
+  endTimeStamp,
+  poolAmount,
+  winner,
+  roundEnded,
+  isLastRound,
+}) => {
   return (
     <Stack>
       <CountDownTimer time={Number(endTimeStamp) * 1000} />
@@ -110,18 +116,26 @@ const RoundHeader = ({
   return (
     <Box mb="4">
       <Flex p="4" justifyContent="space-between" alignItems="center">
-        <Text fontWeight="bold" fontSize="16">
-          {roundStatus}
-        </Text>
-        <Text fontWeight="bold" fontSize="16">
-          BTC VS ETH
-        </Text>
-        <Text mr="1px" fontSize="12px">
-          #{roundNumber}
-        </Text>
+        <Flex flex="1">
+          <Text fontWeight="bold" fontSize="16">
+            {roundStatus}
+          </Text>
+        </Flex>
+        <Flex flex="1" justifyContent="center">
+          <Text fontWeight="bold" fontSize="16">
+            BTC VS ETH
+          </Text>
+        </Flex>
+        <Flex flex="1" justifyContent="flex-end">
+          <Text mr="1px" fontSize="12px">
+            #{roundNumber}
+          </Text>
+        </Flex>
       </Flex>
-      {isRoundLive && (
+      {isRoundLive ? (
         <Progress colorScheme="purple" value={timeProgressRatio} />
+      ) : (
+        <Box h="12px" bg="gray.600" />
       )}
     </Box>
   );
@@ -130,8 +144,10 @@ const RoundHeader = ({
 const RoundProgressWrapper = ({ progress }) => {
   const dominancePercentage = progress?.ratioOfPercentageChanges ?? 50;
   return (
-    <Box marginX="1" mb="4">
-      <Text fontWeight="bold">Dominance</Text>
+    <Box marginX="1" mb="2">
+      <Text fontWeight="bold" textAlign="center">
+        Dominance
+      </Text>
       <Progress
         colorScheme={"pink"}
         hasStripe
@@ -160,6 +176,7 @@ const RoundProgressWrapper = ({ progress }) => {
 export const Round = ({ pair }) => {
   const { library } = useWeb3React();
   const signer = library?.getSigner();
+
   const cryptoPredictionContract = getContractInstance(
     RINKEBY_CONTRACT_ADDRESS,
     cryptoPricePrediction.abi,
@@ -177,12 +194,14 @@ export const Round = ({ pair }) => {
     return winner === 0 ? "" : pairTypes[pair][winner];
   };
 
-  const rounds = useRounds(cryptoPredictionContract, signer);
-  // const currentPairsPriceFeeds = usePriceFeeds([
-  //   BTC_USD_MATIC_MAINNET_ADDRESS,
-  //   ETH_USD_MATIC_MAINNET_ADDRESS,
-  // ]);
-  console.log("round---", rounds);
+  const rounds = useRounds(cryptoPredictionContract, signer, library);
+  console.log("rounds---->", rounds);
+  const users = useGetUsers(cryptoPredictionContract, signer, rounds);
+  const currentPairsPriceFeeds = usePriceFeeds([
+    BTC_USD_MATIC_MAINNET_ADDRESS,
+    ETH_USD_MATIC_MAINNET_ADDRESS,
+  ]);
+
   return (
     <Flex flexWrap="wrap">
       {rounds?.map((round) => {
@@ -192,20 +211,27 @@ export const Round = ({ pair }) => {
           ? "LIVE"
           : "NEXT";
         const isRoundLive = round?.roundLock && !round?.roundEnded;
+        const isLastRound = !round?.roundLock && !round?.roundEnded;
         const percentageRationCalulation =
           isRoundLive &&
           tokenPercentageChangeCalculation(
             round?.firstTokenPrice,
             round?.secondTokenPrice,
-            []
+            currentPairsPriceFeeds
           );
+
+        console.log(round.roundNumber, users?.[round.roundNumber]);
+        const currentRoundUser = users?.[round.roundNumber];
+        const isCurrentUserClaimDone = currentRoundUser
+          ? !(currentRoundUser?.isWinner && !currentRoundUser?.claim)
+          : round?.roundEnded;
 
         return (
           <Box
             m="2"
+            h="310px"
             key={round?.roundNumber}
             borderWidth="1px"
-            backgroundOrigin="border-box"
             backgroundClip={"content-box, border-box"}
             backgroundSize="cover"
             boxSizing="border-box"
@@ -217,6 +243,7 @@ export const Round = ({ pair }) => {
                 ? "linear-gradient(90deg, rgba(128,90,213,1) 0%, rgba(237,100,166,1) 100%)"
                 : "none"
             }
+            position="relative"
           >
             <Box h="100%" background="gray.800" w="500px">
               <RoundHeader
@@ -226,7 +253,7 @@ export const Round = ({ pair }) => {
                 startTimeStamp={round?.startTimeStamp}
                 isRoundLive={isRoundLive}
               />
-              <Flex mb="10" justifyContent="space-between" alignItems="center">
+              <Flex mb="5" justifyContent="space-between" alignItems="center">
                 <TokenWrapper
                   path={"./btc.svg"}
                   pair={"BTC-USD"}
@@ -238,6 +265,7 @@ export const Round = ({ pair }) => {
                   poolAmount={ethers.utils.formatEther(round?.poolAmount)}
                   winner={() => roundWinner(round)}
                   roundEnded={round?.roundEnded}
+                  isLastRound={isLastRound}
                 />
                 <TokenWrapper
                   path={"./eth.svg"}
@@ -258,6 +286,20 @@ export const Round = ({ pair }) => {
                 />
               }
             </Box>
+            {round.roundNumber < rounds?.length - 2 && isCurrentUserClaimDone && (
+              <Box
+                position="absolute"
+                bg="gray.600"
+                top="0px"
+                w="100%"
+                h="100%"
+                zIndex="2"
+                opacity="0.5"
+                _hover={{
+                  background: "none",
+                }}
+              />
+            )}
           </Box>
         );
       })}
