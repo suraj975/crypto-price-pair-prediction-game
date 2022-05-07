@@ -1,10 +1,32 @@
 import { StrictMode } from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import { ChakraProvider } from "@chakra-ui/react";
 import { Web3ReactProvider } from "@web3-react/core";
 import { ethers } from "ethers";
-
 import App from "./App";
+// 1. Import `extendTheme`
+import { extendTheme } from "@chakra-ui/react";
+
+// 2. Call `extendTheme` and pass your custom values
+const theme = extendTheme({
+  colors: {
+    brand: {
+      100: "#f7fafc",
+      // ...
+      900: "#1a202c",
+    },
+  },
+  styles: {
+    global: (props) => ({
+      body: {
+        fontFamily: "body",
+        bg: "gray.800",
+        color: "white",
+        lineHeight: "base",
+      },
+    }),
+  },
+});
 
 const getLibrary = (provider) => {
   const library = new ethers.providers.Web3Provider(provider);
@@ -13,13 +35,13 @@ const getLibrary = (provider) => {
 };
 
 const rootElement = document.getElementById("root");
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
   <StrictMode>
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       <Web3ReactProvider getLibrary={getLibrary}>
         <App />
       </Web3ReactProvider>
     </ChakraProvider>
-  </StrictMode>,
-  rootElement
+  </StrictMode>
 );

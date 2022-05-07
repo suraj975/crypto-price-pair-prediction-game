@@ -35,9 +35,13 @@ export const Navbar = () => {
       </Flex>
       <Flex justifyContent="flex-end" flex="1">
         {!active ? (
-          <Button onClick={onOpen}>Connect Wallet</Button>
+          <Button colorScheme="pink" onClick={onOpen}>
+            Connect Wallet
+          </Button>
         ) : (
-          <Button onClick={disconnect}>Disconnect</Button>
+          <Button colorScheme="purple" onClick={disconnect}>
+            Disconnect
+          </Button>
         )}
       </Flex>
       <SelectWalletModal isOpen={isOpen} closeModal={onClose} />

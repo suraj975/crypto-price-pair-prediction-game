@@ -1,5 +1,5 @@
 export const RINKEBY_CONTRACT_ADDRESS =
-  "0x87b93b1178d1116F889C18762a76391a73a875b3";
+  "0x6f14F9AAF140C5aED76d02f85b233E56BA8aB697";
 
 // Chainlink Price feeds address https://docs.chain.link/docs/ethereum-addresses/
 export const ETH_USD_RINKEBY_ADDRESS =
