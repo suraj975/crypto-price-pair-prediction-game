@@ -1,10 +1,10 @@
 import React from "react";
-import { getPairRounds, getUsersData } from "../helper/contract-methods";
-export const useGetUsers = (contract, signer, allRounds) => {
+import { getPairRounds } from "../helper/contract-methods";
+export const useGetUsers = (contract, signer, allRounds, pair) => {
   const [users, setUsers] = React.useState([]);
   const lastRoundNumber = allRounds[allRounds?.length - 1]?.roundNumber;
   const getUsersData = async () => {
-    const data = await getPairRounds(contract, 1);
+    const data = await getPairRounds(contract, pair);
     const roundsObjectFormat = allRounds?.reduce((acc, curr) => {
       acc[curr?.roundNumber] = {
         ...curr,
