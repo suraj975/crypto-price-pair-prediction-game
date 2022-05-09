@@ -1,9 +1,9 @@
 import React from "react";
 import { getRoundsInfo } from "../helper/contract-methods";
-export const useRounds = (contract, signer, library) => {
+export const useRounds = (contract, signer, pair) => {
   const [rounds, setRounds] = React.useState([]);
   const getData = async () => {
-    const data = await getRoundsInfo(contract, 1);
+    const data = await getRoundsInfo(contract, pair);
     const roundsData = data?.map((round) => {
       return {
         endTimeStamp: round?.endTimeStamp.toNumber(),

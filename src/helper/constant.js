@@ -1,5 +1,5 @@
 export const RINKEBY_CONTRACT_ADDRESS =
-  "0x9247d79D5Ab65eF5cbA7c35A30367cB2A2D67597";
+  "0x97640c12eDD262B7C2E4EcFb5F75f40601B1c6dC";
 
 // Chainlink Price feeds address https://docs.chain.link/docs/ethereum-addresses/
 export const ETH_USD_RINKEBY_ADDRESS =
@@ -12,19 +12,32 @@ export const ETH_USD_MATIC_MAINNET_ADDRESS =
 export const BTC_USD_MATIC_MAINNET_ADDRESS =
   "0xc907E116054Ad103354f2D350FD2514433D57F6f";
 
+export const MATIC_USD_MATIC_MAINNET_ADDRESS =
+  "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0";
+export const LINK_USD_MATIC_MAINNET_ADDRESS =
+  "0xd9FFdb71EbE7496cC440152d43986Aae0AB76665";
+
 export const pairTypes = {
   1: {
     1: "BTC-USD",
     2: "ETH-USD",
     tokenImage1: "./btc.svg",
     tokenImage2: "./eth.svg",
-    comaparison: "BTC Vs USD",
+    comaparison: "BTC Vs ETH",
     tokenSymbol1: "BTC",
     tokenSymbol2: "ETH",
+    tokenAddress1: BTC_USD_MATIC_MAINNET_ADDRESS,
+    tokenAddress2: ETH_USD_MATIC_MAINNET_ADDRESS,
   },
   2: {
-    1: "ADA-USD",
+    1: "LINK-USD",
     2: "MATIC-USD",
-    comaparison: "ADA Vs MATIC",
+    tokenImage1: "./link.svg",
+    tokenImage2: "./matic.svg",
+    comaparison: "LINK Vs MATIC",
+    tokenSymbol1: "LINK",
+    tokenSymbol2: "MATIC",
+    tokenAddress1: LINK_USD_MATIC_MAINNET_ADDRESS,
+    tokenAddress2: MATIC_USD_MATIC_MAINNET_ADDRESS,
   },
 };

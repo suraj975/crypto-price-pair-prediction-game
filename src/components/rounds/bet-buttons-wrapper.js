@@ -86,7 +86,7 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const buttonRefType = React.useRef(null);
   const [loading, setLoading] = React.useState(false);
-  const roundsData = React.useContext(RoundContext);
+  const [_, roundsData] = React.useContext(RoundContext);
   const signer = library?.getSigner();
 
   const cryptoPredictionContract = getContractInstance(
@@ -94,7 +94,7 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
     cryptoPricePrediction.abi,
     signer
   );
-  useRounds(cryptoPredictionContract, signer);
+  useRounds(cryptoPredictionContract, signer, pair);
   const openModalAction = (type) => {
     buttonRefType.current = type;
     onOpen();
@@ -130,7 +130,7 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
       onClose();
     }
   };
-  const users = useGetUsers(cryptoPredictionContract, signer, roundsData);
+  const users = useGetUsers(cryptoPredictionContract, signer, roundsData, pair);
   const hasWon =
     round?.roundEnded &&
     !users?.[round.roundNumber]?.claim &&

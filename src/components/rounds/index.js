@@ -1,14 +1,9 @@
 import { Flex, Box, Text, Stack, Button } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useWeb3React } from "@web3-react/core";
 import cryptoPricePrediction from "../../contracts/CryproPairPricePredictionFactory.json";
 import { getContractInstance } from "../../helper/contract-methods";
-import {
-  ETH_USD_MATIC_MAINNET_ADDRESS,
-  BTC_USD_MATIC_MAINNET_ADDRESS,
-  RINKEBY_CONTRACT_ADDRESS,
-  pairTypes,
-} from "../../helper/constant";
+import { RINKEBY_CONTRACT_ADDRESS, pairTypes } from "../../helper/constant";
 import { useRounds } from "../../hooks/use-rounds";
 import { usePriceFeeds } from "../../hooks/use-price-feeds";
 import { CountDownTimer } from "./countdown";
@@ -16,6 +11,15 @@ import { Progress } from "@chakra-ui/react";
 import { ButtonWrapper } from "./bet-buttons-wrapper";
 import { ethers } from "ethers";
 import { useGetUsers } from "../../hooks/use-get-users";
+import { Navigation, Pagination, Scrollbar, A11y } from "swiper";
+
+import { Swiper, SwiperSlide } from "swiper/react";
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/scrollbar";
 
 const convertPriceUptoTwoDecimal = (price) => {
   return (price / 100000000).toFixed(2);
@@ -232,121 +236,141 @@ export const Round = ({ pair }) => {
     return winner === 0 ? "" : pairTypes[pair][winner];
   };
 
-  const rounds = useRounds(cryptoPredictionContract, signer, library);
+  const rounds = useRounds(cryptoPredictionContract, signer, pair);
 
-  const users = useGetUsers(cryptoPredictionContract, signer, rounds);
+  const users = useGetUsers(cryptoPredictionContract, signer, rounds, pair);
 
   const currentPairsPriceFeeds = usePriceFeeds([
-    BTC_USD_MATIC_MAINNET_ADDRESS,
-    ETH_USD_MATIC_MAINNET_ADDRESS,
+    pairTypes[pair]?.tokenAddress1,
+    pairTypes[pair]?.tokenAddress2,
   ]);
+
   const pairInfo = pairTypes[pair];
   return (
-    <RoundContext.Provider value={rounds}>
+    <RoundContext.Provider value={[pair, rounds]}>
       <Flex flexWrap="wrap">
-        {rounds?.map((round) => {
-          if (round?.roundNumber == 0) return null;
-          const {
-            roundLock,
-            roundNumber,
-            roundEnded,
-            startTimeStamp,
-            endTimeStamp,
-            secondTokenPrice,
-            firstTokenPrice,
-            poolAmount,
-          } = round;
-          const roundStatus = roundEnded
-            ? "EXPIRED"
-            : roundLock
-            ? "LIVE"
-            : "NEXT";
-          const isRoundLive = roundLock && !roundEnded;
-          const isLastRound = !roundLock && !roundEnded;
-          const percentageRationCalulation =
-            isRoundLive &&
-            tokenPercentageChangeCalculation(
-              firstTokenPrice,
+        <Swiper
+          modules={[Navigation, Pagination, Scrollbar, A11y]}
+          spaceBetween={50}
+          slidesPerView={3}
+          navigation
+          pagination={{ clickable: true }}
+          scrollbar={{ draggable: true }}
+          onSwiper={(swiper) => console.log(swiper)}
+          onSlideChange={() => console.log("slide change")}
+        >
+          {rounds?.map((round) => {
+            if (round?.roundNumber == 0) return null;
+            const {
+              roundLock,
+              roundNumber,
+              roundEnded,
+              startTimeStamp,
+              endTimeStamp,
               secondTokenPrice,
-              currentPairsPriceFeeds
-            );
+              firstTokenPrice,
+              poolAmount,
+            } = round;
+            const roundStatus = roundEnded
+              ? "EXPIRED"
+              : roundLock
+              ? "LIVE"
+              : "NEXT";
+            const isRoundLive = roundLock && !roundEnded;
+            const isLastRound = !roundLock && !roundEnded;
+            const percentageRationCalulation =
+              isRoundLive &&
+              tokenPercentageChangeCalculation(
+                firstTokenPrice,
+                secondTokenPrice,
+                currentPairsPriceFeeds
+              );
 
-          const currentRoundUser = users?.[roundNumber];
-          const isCurrentUserClaimDone = currentRoundUser
-            ? !(currentRoundUser?.isWinner && !currentRoundUser?.claim)
-            : roundEnded;
-          const isExpired =
-            !isRoundLive && !isLastRound && isCurrentUserClaimDone;
-          const showLiveRoundLoader =
-            isRoundLive && isliveRoundCompleted(endTimeStamp);
-          return (
-            <Box
-              m="2"
-              h="310px"
-              key={roundNumber}
-              borderWidth="1px"
-              backgroundClip={"content-box, border-box"}
-              backgroundSize="cover"
-              boxSizing="border-box"
-              borderRadius="5px"
-              boxShadow="0 0 3px 5px rgba(0, 0, 0, 0.5)"
-              border="2px solid transparent"
-              background={
-                !roundEnded
-                  ? "linear-gradient(90deg, rgba(128,90,213,1) 0%, rgba(237,100,166,1) 100%)"
-                  : "none"
-              }
-              position="relative"
-            >
-              <Box h="100%" background="gray.800" w="500px">
-                <RoundHeader
-                  roundNumber={roundNumber}
-                  roundStatus={roundStatus}
-                  endTimeStamp={endTimeStamp}
-                  startTimeStamp={startTimeStamp}
-                  isRoundLive={isRoundLive}
-                />
-                <Flex mb="5" justifyContent="space-between" alignItems="center">
-                  <TokenWrapper
-                    path={pairInfo.tokenImage1}
-                    pair={pairInfo[1]}
-                    color={"#ED64A6"}
-                    tokenRoundFixedPrice={firstTokenPrice}
-                  />
-                  {!showLiveRoundLoader && (
-                    <RoundInfoWrapper
+            const currentRoundUser = users?.[roundNumber];
+            const isCurrentUserClaimDone = currentRoundUser
+              ? !(currentRoundUser?.isWinner && !currentRoundUser?.claim)
+              : roundEnded;
+            const isExpired =
+              !isRoundLive && !isLastRound && isCurrentUserClaimDone;
+            const showLiveRoundLoader =
+              isRoundLive && isliveRoundCompleted(endTimeStamp);
+            return (
+              <SwiperSlide>
+                <Box
+                  m="2"
+                  h="310px"
+                  key={roundNumber}
+                  borderWidth="1px"
+                  backgroundClip={"content-box, border-box"}
+                  backgroundSize="cover"
+                  boxSizing="border-box"
+                  borderRadius="5px"
+                  boxShadow="0 0 3px 5px rgba(0, 0, 0, 0.5)"
+                  border="2px solid transparent"
+                  background={
+                    !roundEnded
+                      ? "linear-gradient(90deg, rgba(128,90,213,1) 0%, rgba(237,100,166,1) 100%)"
+                      : "none"
+                  }
+                  position="relative"
+                >
+                  <Box h="100%" background="gray.800" w="500px">
+                    <RoundHeader
+                      roundNumber={roundNumber}
+                      roundStatus={roundStatus}
                       endTimeStamp={endTimeStamp}
-                      poolAmount={ethers.utils.formatEther(poolAmount)}
-                      winner={() => roundWinner(round)}
-                      roundEnded={roundEnded}
-                      isLastRound={isLastRound}
+                      startTimeStamp={startTimeStamp}
+                      isRoundLive={isRoundLive}
                     />
-                  )}
-                  {showLiveRoundLoader && <LiveRoundCalculationLoader />}
-                  <TokenWrapper
-                    path={pairInfo.tokenImage2}
-                    pair={pairInfo[2]}
-                    color={"#805AD5"}
-                    tokenRoundFixedPrice={secondTokenPrice}
-                  />
-                </Flex>
-                {isRoundLive && !showLiveRoundLoader && (
-                  <RoundProgressWrapper progress={percentageRationCalulation} />
-                )}
-                {
-                  <ButtonWrapper
-                    round={round}
-                    pair={1}
-                    users={users}
-                    pairRound={roundNumber}
-                    allRounds={rounds}
-                  />
-                }
-              </Box>
-              {isExpired && <ExpiredRound />}
-            </Box>
-          );
-        })}
+                    <Flex
+                      mb="5"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <TokenWrapper
+                        path={pairInfo.tokenImage1}
+                        pair={pairInfo[1]}
+                        color={"#ED64A6"}
+                        tokenRoundFixedPrice={firstTokenPrice}
+                      />
+                      {!showLiveRoundLoader && (
+                        <RoundInfoWrapper
+                          endTimeStamp={endTimeStamp}
+                          poolAmount={ethers.utils.formatEther(poolAmount)}
+                          winner={() => roundWinner(round)}
+                          roundEnded={roundEnded}
+                          isLastRound={isLastRound}
+                        />
+                      )}
+                      {showLiveRoundLoader && <LiveRoundCalculationLoader />}
+                      <TokenWrapper
+                        path={pairInfo.tokenImage2}
+                        pair={pairInfo[2]}
+                        color={"#805AD5"}
+                        tokenRoundFixedPrice={secondTokenPrice}
+                      />
+                    </Flex>
+                    {isRoundLive && !showLiveRoundLoader && (
+                      <RoundProgressWrapper
+                        progress={percentageRationCalulation}
+                      />
+                    )}
+                    {
+                      <ButtonWrapper
+                        round={round}
+                        pair={pair}
+                        users={users}
+                        pairRound={roundNumber}
+                        allRounds={rounds}
+                      />
+                    }
+                  </Box>
+                  {isExpired && <ExpiredRound />}
+                </Box>
+              </SwiperSlide>
+            );
+          })}
+        </Swiper>
       </Flex>
     </RoundContext.Provider>
   );
