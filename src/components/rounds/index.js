@@ -70,6 +70,23 @@ const TokenWrapper = ({ path, tokenRoundFixedPrice, pair, color }) => {
   );
 };
 
+const ExpiredRound = () => {
+  return (
+    <Box
+      position="absolute"
+      bg="gray.600"
+      top="0px"
+      w="100%"
+      h="100%"
+      zIndex="2"
+      opacity="0.5"
+      _hover={{
+        background: "none",
+      }}
+    />
+  );
+};
+
 const RoundInfoWrapper = ({
   endTimeStamp,
   poolAmount,
@@ -95,10 +112,18 @@ const RoundInfoWrapper = ({
 const calculateTimeBasedProgress = (endTimeStamp, startTimeStamp) => {
   const startMs = startTimeStamp * 1000;
   const endMs = endTimeStamp * 1000;
+  const diff = (endMs - startMs) / 2;
   const now = Date.now();
-  const rawProgress = ((now - startMs) / (endMs - startMs)) * 100;
+  const rawProgress =
+    ((now - (startMs + diff)) / (endMs - (startMs + diff))) * 100;
   const progress = rawProgress <= 100 ? rawProgress : 100;
   return progress;
+};
+
+const isliveRoundCompleted = (endTimeStamp) => {
+  const endMs = endTimeStamp;
+  const currentTime = Math.floor(Date.now() / 1000);
+  return currentTime > endMs;
 };
 
 const RoundHeader = ({
@@ -173,6 +198,19 @@ const RoundProgressWrapper = ({ progress }) => {
   );
 };
 
+const LiveRoundCalculationLoader = () => {
+  return (
+    <Flex flexDir="column" justifyContent="center" alignItems="center">
+      <img src={"./loader.gif"} height="70px" width="70px" />
+      <Text mt="5" fontWeight="bold">
+        Calculating Rewards...
+      </Text>
+    </Flex>
+  );
+};
+
+export const RoundContext = React.createContext("light");
+
 export const Round = ({ pair }) => {
   const { library } = useWeb3React();
   const signer = library?.getSigner();
@@ -195,114 +233,121 @@ export const Round = ({ pair }) => {
   };
 
   const rounds = useRounds(cryptoPredictionContract, signer, library);
-  console.log("rounds---->", rounds);
+
   const users = useGetUsers(cryptoPredictionContract, signer, rounds);
+
   const currentPairsPriceFeeds = usePriceFeeds([
     BTC_USD_MATIC_MAINNET_ADDRESS,
     ETH_USD_MATIC_MAINNET_ADDRESS,
   ]);
-
+  const pairInfo = pairTypes[pair];
   return (
-    <Flex flexWrap="wrap">
-      {rounds?.map((round) => {
-        const roundStatus = round?.roundEnded
-          ? "EXPIRED"
-          : round?.roundLock
-          ? "LIVE"
-          : "NEXT";
-        const isRoundLive = round?.roundLock && !round?.roundEnded;
-        const isLastRound = !round?.roundLock && !round?.roundEnded;
-        const percentageRationCalulation =
-          isRoundLive &&
-          tokenPercentageChangeCalculation(
-            round?.firstTokenPrice,
-            round?.secondTokenPrice,
-            currentPairsPriceFeeds
-          );
+    <RoundContext.Provider value={rounds}>
+      <Flex flexWrap="wrap">
+        {rounds?.map((round) => {
+          if (round?.roundNumber == 0) return null;
+          const {
+            roundLock,
+            roundNumber,
+            roundEnded,
+            startTimeStamp,
+            endTimeStamp,
+            secondTokenPrice,
+            firstTokenPrice,
+            poolAmount,
+          } = round;
+          const roundStatus = roundEnded
+            ? "EXPIRED"
+            : roundLock
+            ? "LIVE"
+            : "NEXT";
+          const isRoundLive = roundLock && !roundEnded;
+          const isLastRound = !roundLock && !roundEnded;
+          const percentageRationCalulation =
+            isRoundLive &&
+            tokenPercentageChangeCalculation(
+              firstTokenPrice,
+              secondTokenPrice,
+              currentPairsPriceFeeds
+            );
 
-        console.log(round.roundNumber, users?.[round.roundNumber]);
-        const currentRoundUser = users?.[round.roundNumber];
-        const isCurrentUserClaimDone = currentRoundUser
-          ? !(currentRoundUser?.isWinner && !currentRoundUser?.claim)
-          : round?.roundEnded;
-
-        return (
-          <Box
-            m="2"
-            h="310px"
-            key={round?.roundNumber}
-            borderWidth="1px"
-            backgroundClip={"content-box, border-box"}
-            backgroundSize="cover"
-            boxSizing="border-box"
-            borderRadius="5px"
-            boxShadow="0 0 3px 5px rgba(0, 0, 0, 0.5)"
-            border="2px solid transparent"
-            background={
-              !round?.roundEnded
-                ? "linear-gradient(90deg, rgba(128,90,213,1) 0%, rgba(237,100,166,1) 100%)"
-                : "none"
-            }
-            position="relative"
-          >
-            <Box h="100%" background="gray.800" w="500px">
-              <RoundHeader
-                roundNumber={round?.roundNumber}
-                roundStatus={roundStatus}
-                endTimeStamp={round?.endTimeStamp}
-                startTimeStamp={round?.startTimeStamp}
-                isRoundLive={isRoundLive}
-              />
-              <Flex mb="5" justifyContent="space-between" alignItems="center">
-                <TokenWrapper
-                  path={"./btc.svg"}
-                  pair={"BTC-USD"}
-                  color={"#ED64A6"}
-                  tokenRoundFixedPrice={round?.firstTokenPrice}
-                />
-                <RoundInfoWrapper
-                  endTimeStamp={round?.endTimeStamp}
-                  poolAmount={ethers.utils.formatEther(round?.poolAmount)}
-                  winner={() => roundWinner(round)}
-                  roundEnded={round?.roundEnded}
-                  isLastRound={isLastRound}
-                />
-                <TokenWrapper
-                  path={"./eth.svg"}
-                  pair={"ETH-USD"}
-                  color={"#805AD5"}
-                  tokenRoundFixedPrice={round?.secondTokenPrice}
-                />
-              </Flex>
-              {isRoundLive && (
-                <RoundProgressWrapper progress={percentageRationCalulation} />
-              )}
-              {
-                <ButtonWrapper
-                  round={round}
-                  pair={1}
-                  pairRound={round?.roundNumber}
-                  allRounds={rounds}
-                />
+          const currentRoundUser = users?.[roundNumber];
+          const isCurrentUserClaimDone = currentRoundUser
+            ? !(currentRoundUser?.isWinner && !currentRoundUser?.claim)
+            : roundEnded;
+          const isExpired =
+            !isRoundLive && !isLastRound && isCurrentUserClaimDone;
+          const showLiveRoundLoader =
+            isRoundLive && isliveRoundCompleted(endTimeStamp);
+          return (
+            <Box
+              m="2"
+              h="310px"
+              key={roundNumber}
+              borderWidth="1px"
+              backgroundClip={"content-box, border-box"}
+              backgroundSize="cover"
+              boxSizing="border-box"
+              borderRadius="5px"
+              boxShadow="0 0 3px 5px rgba(0, 0, 0, 0.5)"
+              border="2px solid transparent"
+              background={
+                !roundEnded
+                  ? "linear-gradient(90deg, rgba(128,90,213,1) 0%, rgba(237,100,166,1) 100%)"
+                  : "none"
               }
+              position="relative"
+            >
+              <Box h="100%" background="gray.800" w="500px">
+                <RoundHeader
+                  roundNumber={roundNumber}
+                  roundStatus={roundStatus}
+                  endTimeStamp={endTimeStamp}
+                  startTimeStamp={startTimeStamp}
+                  isRoundLive={isRoundLive}
+                />
+                <Flex mb="5" justifyContent="space-between" alignItems="center">
+                  <TokenWrapper
+                    path={pairInfo.tokenImage1}
+                    pair={pairInfo[1]}
+                    color={"#ED64A6"}
+                    tokenRoundFixedPrice={firstTokenPrice}
+                  />
+                  {!showLiveRoundLoader && (
+                    <RoundInfoWrapper
+                      endTimeStamp={endTimeStamp}
+                      poolAmount={ethers.utils.formatEther(poolAmount)}
+                      winner={() => roundWinner(round)}
+                      roundEnded={roundEnded}
+                      isLastRound={isLastRound}
+                    />
+                  )}
+                  {showLiveRoundLoader && <LiveRoundCalculationLoader />}
+                  <TokenWrapper
+                    path={pairInfo.tokenImage2}
+                    pair={pairInfo[2]}
+                    color={"#805AD5"}
+                    tokenRoundFixedPrice={secondTokenPrice}
+                  />
+                </Flex>
+                {isRoundLive && !showLiveRoundLoader && (
+                  <RoundProgressWrapper progress={percentageRationCalulation} />
+                )}
+                {
+                  <ButtonWrapper
+                    round={round}
+                    pair={1}
+                    users={users}
+                    pairRound={roundNumber}
+                    allRounds={rounds}
+                  />
+                }
+              </Box>
+              {isExpired && <ExpiredRound />}
             </Box>
-            {round.roundNumber < rounds?.length - 2 && isCurrentUserClaimDone && (
-              <Box
-                position="absolute"
-                bg="gray.600"
-                top="0px"
-                w="100%"
-                h="100%"
-                zIndex="2"
-                opacity="0.5"
-                _hover={{
-                  background: "none",
-                }}
-              />
-            )}
-          </Box>
-        );
-      })}
-    </Flex>
+          );
+        })}
+      </Flex>
+    </RoundContext.Provider>
   );
 };

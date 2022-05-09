@@ -16,7 +16,7 @@ export const usePriceFeeds = (pricePairs) => {
     };
     const intervalId = setInterval(() => {
       getData(pricePairs);
-    }, 20000);
+    }, 5000);
     return () => clearInterval(intervalId);
   }, []);
 

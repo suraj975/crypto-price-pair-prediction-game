@@ -1,5 +1,5 @@
 export const RINKEBY_CONTRACT_ADDRESS =
-  "0x6f14F9AAF140C5aED76d02f85b233E56BA8aB697";
+  "0x9247d79D5Ab65eF5cbA7c35A30367cB2A2D67597";
 
 // Chainlink Price feeds address https://docs.chain.link/docs/ethereum-addresses/
 export const ETH_USD_RINKEBY_ADDRESS =
@@ -16,7 +16,11 @@ export const pairTypes = {
   1: {
     1: "BTC-USD",
     2: "ETH-USD",
+    tokenImage1: "./btc.svg",
+    tokenImage2: "./eth.svg",
     comaparison: "BTC Vs USD",
+    tokenSymbol1: "BTC",
+    tokenSymbol2: "ETH",
   },
   2: {
     1: "ADA-USD",

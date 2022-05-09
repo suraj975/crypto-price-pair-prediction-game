@@ -19,10 +19,11 @@ import {
   claimReward,
   getContractInstance,
 } from "../../helper/contract-methods";
-import { RINKEBY_CONTRACT_ADDRESS } from "../../helper/constant";
+import { pairTypes, RINKEBY_CONTRACT_ADDRESS } from "../../helper/constant";
 import cryptoPricePrediction from "../../contracts/CryproPairPricePredictionFactory.json";
 import { useGetUsers } from "../../hooks/use-get-users";
 import { useRounds } from "../../hooks/use-rounds";
+import { RoundContext } from "./index";
 
 function BettingAmountModal({
   isOpen,
@@ -85,6 +86,7 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const buttonRefType = React.useRef(null);
   const [loading, setLoading] = React.useState(false);
+  const roundsData = React.useContext(RoundContext);
   const signer = library?.getSigner();
 
   const cryptoPredictionContract = getContractInstance(
@@ -93,8 +95,6 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
     signer
   );
   useRounds(cryptoPredictionContract, signer);
-  const users = useGetUsers(cryptoPredictionContract, signer, allRounds);
-
   const openModalAction = (type) => {
     buttonRefType.current = type;
     onOpen();
@@ -109,10 +109,6 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
     } catch (error) {
       setLoading(false);
     }
-  };
-
-  const getBigNumberFormat = (value) => {
-    return ethers?.BigNumber?.from(value);
   };
 
   const tokenBetAction = async (type) => {
@@ -134,7 +130,7 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
       onClose();
     }
   };
-
+  const users = useGetUsers(cryptoPredictionContract, signer, roundsData);
   const hasWon =
     round?.roundEnded &&
     !users?.[round.roundNumber]?.claim &&
@@ -142,6 +138,7 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
   const isBetTaken = users?.[round.roundNumber]?.amount > 0;
   const isNextRound =
     round?.roundStart && !round?.roundLock && Number(round?.endTimeStamp) !== 0;
+  const { tokenSymbol1, tokenSymbol2 } = pairTypes[pair];
   return (
     <Flex>
       {!hasWon && isNextRound && (
@@ -154,7 +151,7 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
             mx="2"
             isDisabled={isBetTaken}
           >
-            Bet BTC
+            Bet {tokenSymbol1}
           </Button>
           <Button
             onClick={() => openModalAction(2)}
@@ -164,7 +161,7 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
             mx="2"
             isDisabled={isBetTaken}
           >
-            Bet ETH
+            Bet {tokenSymbol2}
           </Button>
         </>
       )}

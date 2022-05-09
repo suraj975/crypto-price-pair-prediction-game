@@ -24,8 +24,8 @@ export const useRounds = (contract, signer, library) => {
         startTimeStamp: round?.startTimeStamp.toNumber(),
       };
     });
-
-    setRounds(roundsData);
+    const filterData = roundsData?.filter((round) => round?.roundNumber !== 0);
+    setRounds(filterData.reverse());
   };
 
   React.useEffect(() => {
