@@ -59,6 +59,7 @@ export const RoundTabs = () => {
       getValues();
     }
   }, [signer?._isSigner]);
+
   if (pairCount === 0) return null;
 
   return (
