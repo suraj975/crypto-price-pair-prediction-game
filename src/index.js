@@ -20,7 +20,7 @@ const theme = extendTheme({
     global: (props) => ({
       body: {
         fontFamily: "body",
-        bg: "gray.800",
+        bg: "#8367c7",
         color: "white",
         lineHeight: "base",
       },
