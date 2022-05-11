@@ -12,7 +12,7 @@ import { ButtonWrapper } from "./bet-buttons-wrapper";
 import { ethers } from "ethers";
 import { useGetUsers } from "../../hooks/use-get-users";
 import SwiperCore, { Keyboard, Mousewheel, FreeMode } from "swiper";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
 import styled from "styled-components";
 // Import Swiper styles
 import "swiper/css";
@@ -284,10 +284,13 @@ export const Round = ({ pair }) => {
 
   const pairInfo = pairTypes[pair];
 
+  if (!rounds?.length) return null;
+
   return (
     <RoundContext.Provider value={[pair, rounds]}>
       <StyledSwiper>
         <Swiper
+          initialSlide={rounds?.length - 2}
           spaceBetween={16}
           slidesPerView="auto"
           freeMode={{
@@ -337,12 +340,15 @@ export const Round = ({ pair }) => {
             const showLiveRoundLoader =
               isRoundLive && isliveRoundCompleted(endTimeStamp);
 
+            const roundPayoutRation =
+              percentageRationCalulation &&
+              percentageRationCalulation?.payoutRatio;
+
             return (
               <SwiperSlide key={roundNumber}>
                 {({ isActive }) => (
                   <Box
                     m="2"
-                    h="320px"
                     borderWidth="1px"
                     backgroundClip={"content-box, border-box"}
                     backgroundSize="cover"
@@ -357,7 +363,7 @@ export const Round = ({ pair }) => {
                     }
                     position="relative"
                   >
-                    <Box h="100%" background="#3d0066">
+                    <Box h="310px" background="#3d0066">
                       <RoundHeader
                         roundNumber={roundNumber}
                         roundStatus={roundStatus}
@@ -376,10 +382,7 @@ export const Round = ({ pair }) => {
                           color={"#ED64A6"}
                           tokenRoundFixedPrice={firstTokenPrice}
                           showLiveRoundLoader={showLiveRoundLoader}
-                          payoutRatio={
-                            percentageRationCalulation &&
-                            percentageRationCalulation?.payoutRatio[0]
-                          }
+                          payoutRatio={roundPayoutRation?.[0]}
                         />
                         {!showLiveRoundLoader && (
                           <RoundInfoWrapper
@@ -397,10 +400,7 @@ export const Round = ({ pair }) => {
                           color={"#805AD5"}
                           tokenRoundFixedPrice={secondTokenPrice}
                           showLiveRoundLoader={showLiveRoundLoader}
-                          payoutRatio={
-                            percentageRationCalulation &&
-                            percentageRationCalulation?.payoutRatio[1]
-                          }
+                          payoutRatio={roundPayoutRation?.[1]}
                         />
                       </Flex>
                       {isRoundLive && !showLiveRoundLoader && (
