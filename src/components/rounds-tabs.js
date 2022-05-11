@@ -13,7 +13,11 @@ const TabListHeaders = ({ pairCount }) => {
   return (
     <TabList fontWeight="bold">
       {pairArray?.map((pair, index) => {
-        return <Tab key={index}>{pairTypes[pair].comaparison}</Tab>;
+        return (
+          <Tab fontWeight="bold" color="white" key={index}>
+            {pairTypes[pair].comaparison}
+          </Tab>
+        );
       })}
     </TabList>
   );
@@ -55,13 +59,14 @@ export const RoundTabs = () => {
       getValues();
     }
   }, [signer?._isSigner]);
+
   if (pairCount === 0) return null;
 
   return (
     <Tabs
       mt="5"
       variant="soft-rounded"
-      colorScheme="pink"
+      colorScheme="purple"
       align="center"
       isLazy={true}
     >

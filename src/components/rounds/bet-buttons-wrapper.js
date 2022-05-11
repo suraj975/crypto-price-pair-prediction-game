@@ -36,8 +36,8 @@ function BettingAmountModal({
   const betType = buttonRefType?.current === 1 ? "BTC-USD" : "ETH-USD";
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalContent bg="gray.700">
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalContent bg="purple.600" border="2px solid #3d0066">
           <ModalHeader>
             <Flex justifyContent="space-between">
               <Text fontWeight="bold">BET</Text>
@@ -140,7 +140,7 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
     round?.roundStart && !round?.roundLock && Number(round?.endTimeStamp) !== 0;
   const { tokenSymbol1, tokenSymbol2 } = pairTypes[pair];
   return (
-    <Flex>
+    <Flex mt="10">
       {!hasWon && isNextRound && (
         <>
           <Button

@@ -17,18 +17,13 @@ export const Navbar = () => {
   }, []);
 
   return (
-    <Flex alignItems="center" bg="gray.700" p="1em">
+    <Flex alignItems="center" bg="#3d0066" p="1em">
       <Flex justifyContent="center" flex="10" marginBottom="10px">
         <Text
           margin="0"
           lineHeight="1.15"
           fontSize={["1.5em", "2em", "3em", "3em"]}
           fontWeight="600"
-          sx={{
-            background: "linear-gradient(90deg, #1652f0 0%, #b9cbfb 70.35%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
         >
           Crypto Prediction
         </Text>
