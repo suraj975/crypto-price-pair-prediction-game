@@ -26,18 +26,18 @@ import {
 } from "../../helper/constant";
 import cryptoPricePrediction from "../../contracts/CryproPairPricePredictionFactory.json";
 import { useGetUsers } from "../../hooks/use-get-users";
-import { useRounds } from "../../hooks/use-rounds";
 import { RoundContext } from "./index";
 
 function BettingAmountModal({
   isOpen,
   onClose,
   value,
+  pair,
   setValue,
   buttonRefType,
   tokenBetAction,
 }) {
-  const betType = buttonRefType?.current === 1 ? "BTC-USD" : "ETH-USD";
+  const betType = pairTypes[pair][buttonRefType?.current];
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -63,7 +63,7 @@ function BettingAmountModal({
                   onChange={(e) => setValue(e?.target.value)}
                 />
                 <Text textAlign="right" mt="1" fontSize="10px">
-                  Min bet is 0.0001 ETH
+                  Min bet is 0.0001 Matic
                 </Text>
               </Box>
             </Stack>
@@ -193,6 +193,7 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
         value={value}
         setValue={setValue}
         buttonRefType={buttonRefType}
+        pair={pair}
         tokenBetAction={tokenBetAction}
       />
     </Flex>

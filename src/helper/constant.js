@@ -16,6 +16,8 @@ export const MATIC_USD_MATIC_MAINNET_ADDRESS =
   "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0";
 export const LINK_USD_MATIC_MAINNET_ADDRESS =
   "0xd9FFdb71EbE7496cC440152d43986Aae0AB76665";
+export const SAND_USD_MATIC_MAINNET_ADDRESS =
+  "0x3D49406EDd4D52Fb7FFd25485f32E073b529C924";
 
 export const pairTypes = {
   1: {
@@ -30,15 +32,15 @@ export const pairTypes = {
     tokenAddress2: ETH_USD_MATIC_MAINNET_ADDRESS,
   },
   2: {
-    1: "LINK-USD",
-    2: "MATIC-USD",
-    tokenImage1: "./link.svg",
-    tokenImage2: "./matic.svg",
-    comaparison: "LINK Vs MATIC",
-    tokenSymbol1: "LINK",
-    tokenSymbol2: "MATIC",
-    tokenAddress1: LINK_USD_MATIC_MAINNET_ADDRESS,
-    tokenAddress2: MATIC_USD_MATIC_MAINNET_ADDRESS,
+    1: "MATIC-USD",
+    2: "SAND-USD",
+    tokenImage1: "./matic.svg",
+    tokenImage2: "./sand.svg",
+    comaparison: "MATIC Vs SAND",
+    tokenSymbol1: "MATIC",
+    tokenSymbol2: "SAND",
+    tokenAddress1: MATIC_USD_MATIC_MAINNET_ADDRESS,
+    tokenAddress2: SAND_USD_MATIC_MAINNET_ADDRESS,
   },
 };
 
