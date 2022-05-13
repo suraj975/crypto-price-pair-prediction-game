@@ -1,9 +1,10 @@
 import React from "react";
 import { getRoundsInfo } from "../helper/contract-methods";
-export const useRounds = (contract, signer, pair) => {
+export const useRounds = (contract, signer, pair, number) => {
   const [rounds, setRounds] = React.useState([]);
+  const [allRounds, setallRounds] = React.useState([]);
   const getData = async () => {
-    const data = await getRoundsInfo(contract, pair);
+    const data = await getRoundsInfo(contract, pair, number);
     const roundsData = data?.map((round) => {
       return {
         endTimeStamp: round?.endTimeStamp.toNumber(),
@@ -25,7 +26,9 @@ export const useRounds = (contract, signer, pair) => {
       };
     });
     const filterData = roundsData?.filter((round) => round?.roundNumber !== 0);
-    setRounds(filterData.reverse());
+    setallRounds([...filterData].reverse());
+    const splicedData = filterData.splice(0, 5);
+    setRounds(splicedData.reverse());
   };
 
   React.useEffect(() => {
@@ -47,11 +50,11 @@ export const useRounds = (contract, signer, pair) => {
     }
 
     return () => {
-      contract.removeAllListeners("RoundExecution");
-      contract.removeAllListeners("Claim");
-      contract.removeAllListeners("Bet");
+      contract?.removeAllListeners("RoundExecution");
+      contract?.removeAllListeners("Claim");
+      contract?.removeAllListeners("Bet");
     };
   }, [signer?._isSigner]);
 
-  return rounds;
+  return [rounds, allRounds];
 };

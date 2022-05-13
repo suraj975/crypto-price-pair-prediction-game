@@ -19,7 +19,11 @@ import {
   claimReward,
   getContractInstance,
 } from "../../helper/contract-methods";
-import { pairTypes, RINKEBY_CONTRACT_ADDRESS } from "../../helper/constant";
+import {
+  pairTypes,
+  RINKEBY_CONTRACT_ADDRESS,
+  siteColorCodes,
+} from "../../helper/constant";
 import cryptoPricePrediction from "../../contracts/CryproPairPricePredictionFactory.json";
 import { useGetUsers } from "../../hooks/use-get-users";
 import { useRounds } from "../../hooks/use-rounds";
@@ -36,8 +40,11 @@ function BettingAmountModal({
   const betType = buttonRefType?.current === 1 ? "BTC-USD" : "ETH-USD";
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalContent bg="purple.600" border="2px solid #3d0066">
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <ModalContent
+          bg={siteColorCodes?.modalBAcground}
+          border="4px solid orange"
+        >
           <ModalHeader>
             <Flex justifyContent="space-between">
               <Text fontWeight="bold">BET</Text>
@@ -63,13 +70,13 @@ function BettingAmountModal({
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="pink" mr={3} onClick={onClose}>
+            <Button colorScheme="yellow" mr={3} onClick={onClose}>
               Close
             </Button>
             <Button
               disabled={value < 0.0001}
               onClick={() => tokenBetAction(buttonRefType?.current)}
-              colorScheme="purple"
+              colorScheme="orange"
             >
               Bet
             </Button>
@@ -94,7 +101,8 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
     cryptoPricePrediction.abi,
     signer
   );
-  useRounds(cryptoPredictionContract, signer, pair);
+  // Remove this hook as the data is coming from context provider
+  //useRounds(cryptoPredictionContract, signer, pair, 5);
   const openModalAction = (type) => {
     buttonRefType.current = type;
     onOpen();
@@ -138,6 +146,9 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
   const isBetTaken = users?.[round.roundNumber]?.amount > 0;
   const isNextRound =
     round?.roundStart && !round?.roundLock && Number(round?.endTimeStamp) !== 0;
+  const currentTime = Math.floor(Date.now() / 1000);
+  const isLastRoundTimerOver =
+    isNextRound && allRounds[allRounds.length - 2].endTimeStamp < currentTime;
   const { tokenSymbol1, tokenSymbol2 } = pairTypes[pair];
   return (
     <Flex mt="10">
@@ -146,20 +157,20 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
           <Button
             onClick={() => openModalAction(1)}
             isLoading={loading && buttonRefType.current === 1}
-            colorScheme="pink"
+            colorScheme="yellow"
             flex="1"
             mx="2"
-            isDisabled={isBetTaken}
+            isDisabled={isLastRoundTimerOver || isBetTaken}
           >
             Bet {tokenSymbol1}
           </Button>
           <Button
             onClick={() => openModalAction(2)}
             isLoading={loading && buttonRefType.current === 2}
-            colorScheme="purple"
+            colorScheme="orange"
             flex="1"
             mx="2"
-            isDisabled={isBetTaken}
+            isDisabled={isLastRoundTimerOver || isBetTaken}
           >
             Bet {tokenSymbol2}
           </Button>
@@ -168,7 +179,7 @@ export const ButtonWrapper = ({ round, pairRound, pair, allRounds }) => {
       {hasWon && (
         <Button
           onClick={getReward}
-          colorScheme="pink"
+          colorScheme="orange"
           flex="1"
           mx="2"
           isLoading={loading}
