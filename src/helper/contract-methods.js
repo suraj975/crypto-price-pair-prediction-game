@@ -7,10 +7,6 @@ export const getContractInstance = (address, abi, signer) => {
 
 export const getPriceFeeds = async (coinPairAddress) => {
   const aggregatorV3InterfaceABI = aggregratorV3Interface.abi;
-  console.log(
-    "process.env.REACT_APP_ALCHEMY_MATIC_MAINNET_KEY--",
-    process.env.REACT_APP_ALCHEMY_MATIC_MAINNET_KEY
-  );
   const provider = new ethers.providers.JsonRpcProvider(
     `https://polygon-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_MATIC_MAINNET_KEY}`
   );
@@ -26,8 +22,8 @@ export const getPriceFeeds = async (coinPairAddress) => {
   );
 };
 
-export const getRoundsInfo = async (contract, pair) => {
-  return await contract.getPairRounds(pair, 5);
+export const getRoundsInfo = async (contract, pair, number) => {
+  return await contract.getPairRounds(pair, number);
 };
 
 export const getPairCount = async (contract) => {

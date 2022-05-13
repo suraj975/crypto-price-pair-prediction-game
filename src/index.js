@@ -6,6 +6,7 @@ import { ethers } from "ethers";
 import App from "./App";
 // 1. Import `extendTheme`
 import { extendTheme } from "@chakra-ui/react";
+import { siteColorCodes } from "./helper/constant";
 
 // 2. Call `extendTheme` and pass your custom values
 const theme = extendTheme({
@@ -20,7 +21,7 @@ const theme = extendTheme({
     global: (props) => ({
       body: {
         fontFamily: "body",
-        bg: "#8367c7",
+        bg: siteColorCodes.bodyBackround,
         color: "white",
         lineHeight: "base",
       },

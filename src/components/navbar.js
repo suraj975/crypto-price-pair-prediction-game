@@ -2,6 +2,7 @@ import { useDisclosure, Button, Text, HStack, Flex } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
 import React, { useEffect } from "react";
 import { connectors } from "../connectors";
+import { siteColorCodes } from "../helper/constant";
 import SelectWalletModal from "../modal";
 
 export const Navbar = () => {
@@ -17,7 +18,7 @@ export const Navbar = () => {
   }, []);
 
   return (
-    <Flex alignItems="center" bg="#3d0066" p="1em">
+    <Flex alignItems="center" bg={siteColorCodes?.navBarBackground} p="1em">
       <Flex justifyContent="center" flex="10" marginBottom="10px">
         <Text
           margin="0"
@@ -30,11 +31,11 @@ export const Navbar = () => {
       </Flex>
       <Flex justifyContent="flex-end" flex="1">
         {!active ? (
-          <Button colorScheme="pink" onClick={onOpen}>
+          <Button colorScheme="orange" onClick={onOpen}>
             Connect Wallet
           </Button>
         ) : (
-          <Button colorScheme="purple" onClick={disconnect}>
+          <Button colorScheme="orange" onClick={disconnect}>
             Disconnect
           </Button>
         )}

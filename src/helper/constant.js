@@ -41,3 +41,12 @@ export const pairTypes = {
     tokenAddress2: MATIC_USD_MATIC_MAINNET_ADDRESS,
   },
 };
+
+export const siteColorCodes = {
+  bodyBackround: "#14213d",
+  navBarBackground: "#14213d",
+  roundCardBackground: "#000000",
+  modalBAcground: "black",
+  firstTokenColor: "orange.500",
+  secondTokenColor: "yellow.500",
+};

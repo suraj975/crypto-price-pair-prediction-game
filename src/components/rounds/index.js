@@ -3,7 +3,11 @@ import React from "react";
 import { useWeb3React } from "@web3-react/core";
 import cryptoPricePrediction from "../../contracts/CryproPairPricePredictionFactory.json";
 import { getContractInstance } from "../../helper/contract-methods";
-import { RINKEBY_CONTRACT_ADDRESS, pairTypes } from "../../helper/constant";
+import {
+  RINKEBY_CONTRACT_ADDRESS,
+  pairTypes,
+  siteColorCodes,
+} from "../../helper/constant";
 import { useRounds } from "../../hooks/use-rounds";
 import { usePriceFeeds } from "../../hooks/use-price-feeds";
 import { CountDownTimer } from "./countdown";
@@ -19,6 +23,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
+import UserDrawerBoard from "./user-drawer-board";
 
 SwiperCore.use([Keyboard, Mousewheel, FreeMode]);
 
@@ -107,7 +112,7 @@ const ExpiredRound = () => {
   return (
     <Box
       position="absolute"
-      bg="gray.600"
+      bg={siteColorCodes?.roundCardBackground}
       top="0px"
       w="100%"
       h="100%"
@@ -129,12 +134,12 @@ const RoundInfoWrapper = ({
 }) => {
   return (
     <Stack>
-      <CountDownTimer time={Number(endTimeStamp) * 1000} />
+      {!isLastRound && <CountDownTimer time={Number(endTimeStamp) * 1000} />}
       <Text text-align="center" fontWeight="bold">
         Pool : {poolAmount > 0 ? Number(poolAmount)?.toFixed(4) : 0}
       </Text>
       {roundEnded && Number(endTimeStamp) !== 0 && (
-        <Text text-align="center" color="teal.300" fontWeight="bold">
+        <Text text-align="center" color="teal.400" fontWeight="bold">
           {winner()} WINS
         </Text>
       )}
@@ -196,7 +201,7 @@ const RoundHeader = ({
               float: "left",
             },
           }}
-          colorScheme="purple"
+          colorScheme="yellow"
           value={timeProgressRatio}
         />
       ) : (
@@ -214,16 +219,16 @@ const RoundProgressWrapper = ({ progress }) => {
         Dominance
       </Text>
       <Progress
-        colorScheme={"pink"}
+        colorScheme={"orange"}
         hasStripe
         size="lg"
         sx={{
           backgroundSize: "1rem 1rem",
-          backgroundColor: "#805AD5 !important",
+          backgroundColor: "#ecc94b !important",
           backgroundImage:
             "linear-gradient( 45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 75%, transparent 75%, transparent )",
           div: {
-            backgroundColor: "#ED64A6 !important",
+            backgroundColor: "#dd6b20 !important",
             float: "left",
           },
         }}
@@ -273,7 +278,12 @@ export const Round = ({ pair }) => {
     return winner === 0 ? "" : pairTypes[pair][winner];
   };
 
-  const rounds = useRounds(cryptoPredictionContract, signer, pair);
+  const [rounds, allRounds] = useRounds(
+    cryptoPredictionContract,
+    signer,
+    pair,
+    200
+  );
 
   const users = useGetUsers(cryptoPredictionContract, signer, rounds, pair);
 
@@ -304,7 +314,7 @@ export const Round = ({ pair }) => {
           keyboard
           resizeObserver
         >
-          {rounds?.map((round) => {
+          {rounds?.map((round, index) => {
             if (round?.roundNumber == 0) return null;
             const {
               roundLock,
@@ -358,12 +368,15 @@ export const Round = ({ pair }) => {
                     border="2px solid transparent"
                     background={
                       !roundEnded
-                        ? "linear-gradient(90deg, rgba(128,90,213,1) 0%, rgba(237,100,166,1) 100%)"
+                        ? "linear-gradient(90deg, rgba(236,201,75,1) 0%, rgba(221,107,32,1) 100%)"
                         : "none"
                     }
                     position="relative"
                   >
-                    <Box h="310px" background="#3d0066">
+                    <Box
+                      h="320px"
+                      background={siteColorCodes?.roundCardBackground}
+                    >
                       <RoundHeader
                         roundNumber={roundNumber}
                         roundStatus={roundStatus}
@@ -379,7 +392,7 @@ export const Round = ({ pair }) => {
                         <TokenWrapper
                           path={pairInfo.tokenImage1}
                           pair={pairInfo[1]}
-                          color={"#ED64A6"}
+                          color={siteColorCodes.firstTokenColor}
                           tokenRoundFixedPrice={firstTokenPrice}
                           showLiveRoundLoader={showLiveRoundLoader}
                           payoutRatio={roundPayoutRation?.[0]}
@@ -397,7 +410,7 @@ export const Round = ({ pair }) => {
                         <TokenWrapper
                           path={pairInfo.tokenImage2}
                           pair={pairInfo[2]}
-                          color={"#805AD5"}
+                          color={siteColorCodes.secondTokenColor}
                           tokenRoundFixedPrice={secondTokenPrice}
                           showLiveRoundLoader={showLiveRoundLoader}
                           payoutRatio={roundPayoutRation?.[1]}
@@ -424,6 +437,14 @@ export const Round = ({ pair }) => {
           })}
         </Swiper>
       </StyledSwiper>
+      {rounds?.length > 0 && (
+        <UserDrawerBoard
+          contract={cryptoPredictionContract}
+          signer={signer}
+          pair={pair}
+          rounds={allRounds}
+        />
+      )}
     </RoundContext.Provider>
   );
 };
