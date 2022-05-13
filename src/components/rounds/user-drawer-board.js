@@ -82,7 +82,7 @@ const UsersRoundsTable = ({ contract, rounds, signer, pair }) => {
               const userMatchResult = users?.[userRound]?.isWinner
                 ? "CLAIMED"
                 : "LOST";
-
+              if (!users?.[userRound]?.roundEnded) return null;
               return (
                 <Tr key={userRound}>
                   <Td>{userRound}</Td>

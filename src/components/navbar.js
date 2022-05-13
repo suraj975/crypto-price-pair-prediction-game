@@ -1,4 +1,4 @@
-import { useDisclosure, Button, Text, HStack, Flex } from "@chakra-ui/react";
+import { useDisclosure, Button, Image, Flex } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
 import React, { useEffect } from "react";
 import { connectors } from "../connectors";
@@ -18,16 +18,13 @@ export const Navbar = () => {
   }, []);
 
   return (
-    <Flex alignItems="center" bg={siteColorCodes?.navBarBackground} p="1em">
-      <Flex justifyContent="center" flex="10" marginBottom="10px">
-        <Text
-          margin="0"
-          lineHeight="1.15"
-          fontSize={["1.5em", "2em", "3em", "3em"]}
-          fontWeight="600"
-        >
-          Crypto Prediction
-        </Text>
+    <Flex
+      alignItems="center"
+      bg={siteColorCodes?.modalBAcground}
+      borderBottom="2px solid orange"
+    >
+      <Flex justifyContent="flex-between" flex="10">
+        <Image w="110px" h="110px" src="./logo.png" />
       </Flex>
       <Flex justifyContent="flex-end" flex="1">
         {!active ? (

@@ -18,7 +18,6 @@ export const useGetUsers = (contract, signer, allRounds, pair) => {
         if (!roundsObjectFormat?.[roundNumber]) return acc;
         const { firstTokenPriceChange, secondTokenPriceChange } =
           roundsObjectFormat[roundNumber];
-
         let isWinner = false;
 
         const userTokenSelectedChoice = user?.tokenselected;
@@ -32,6 +31,7 @@ export const useGetUsers = (contract, signer, allRounds, pair) => {
           tokenSelected: user?.tokenselected,
           claim: user?.claim,
           isWinner,
+          roundEnded: roundsObjectFormat?.[roundNumber]?.roundEnded,
         };
         return acc;
       }, {});
