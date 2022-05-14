@@ -13,6 +13,7 @@ import {
 import { Image } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
 import { connectors } from "./connectors";
+import { siteColorCodes } from "./helper/constant";
 
 export default function SelectWalletModal({ isOpen, closeModal }) {
   const { activate } = useWeb3React();
@@ -24,8 +25,8 @@ export default function SelectWalletModal({ isOpen, closeModal }) {
   return (
     <Modal isOpen={isOpen} onClose={closeModal} isCentered>
       <ModalOverlay />
-      <ModalContent w="300px">
-        <ModalHeader>Select Wallet</ModalHeader>
+      <ModalContent w="300px" bg={siteColorCodes.roundCardBackground}>
+        <ModalHeader color="orange.500">Select Wallet</ModalHeader>
         <ModalCloseButton
           _focus={{
             boxShadow: "none",
@@ -34,7 +35,8 @@ export default function SelectWalletModal({ isOpen, closeModal }) {
         <ModalBody paddingBottom="1.5rem">
           <VStack>
             <Button
-              variant="outline"
+              // variant="outline"
+              colorScheme="orange"
               onClick={() => {
                 activate(connectors.injected);
                 setProvider("injected");

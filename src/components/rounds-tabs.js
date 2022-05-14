@@ -8,7 +8,6 @@ import {
   Box,
   Heading,
   Text,
-  Button,
   Divider,
   Flex,
   Stack,
@@ -48,7 +47,7 @@ const TabsComponent = ({ pairCount }) => {
     <TabPanels>
       {pairArray?.map((pair, index) => {
         return (
-          <TabPanel key={index}>
+          <TabPanel paddingX="0" key={index}>
             <Round pair={pair} />
           </TabPanel>
         );
