@@ -26,7 +26,7 @@ export const Navbar = () => {
       <Flex justifyContent="flex-between" flex="10">
         <Image w="110px" h="110px" src="./logo.png" />
       </Flex>
-      <Flex justifyContent="flex-end" flex="1">
+      <Flex mr="2" justifyContent="flex-end" flex="1">
         {!active ? (
           <Button colorScheme="orange" onClick={onOpen}>
             Connect Wallet

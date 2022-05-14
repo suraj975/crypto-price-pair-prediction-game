@@ -1,4 +1,4 @@
-import { Flex, Box, Text, Stack, Button } from "@chakra-ui/react";
+import { Flex, Box, Text, Stack } from "@chakra-ui/react";
 import React from "react";
 import { useWeb3React } from "@web3-react/core";
 import cryptoPricePrediction from "../../contracts/CryproPairPricePredictionFactory.json";
@@ -16,9 +16,8 @@ import { ButtonWrapper } from "./bet-buttons-wrapper";
 import { ethers } from "ethers";
 import { useGetUsers } from "../../hooks/use-get-users";
 import SwiperCore, { Keyboard, Mousewheel, FreeMode } from "swiper";
-import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
+import { Swiper, SwiperSlide } from "swiper/react";
 import styled from "styled-components";
-// Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -152,7 +151,8 @@ const calculateTimeBasedProgress = (endTimeStamp, startTimeStamp) => {
   const endMs = endTimeStamp * 1000;
   const diff = (endMs - startMs) / 2;
   const now = Date.now();
-  const rawProgress = ((now - startMs) / (endMs - startMs)) * 100;
+  const rawProgress =
+    ((now - (startMs + diff)) / (endMs - (startMs + diff))) * 100;
   const progress = rawProgress <= 100 ? rawProgress : 100;
   return progress;
 };
