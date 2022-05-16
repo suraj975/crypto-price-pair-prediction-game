@@ -299,153 +299,157 @@ export const Round = ({ pair }) => {
 
   return (
     <RoundContext.Provider value={[pair, rounds]}>
-      <StyledSwiper>
-        <Swiper
-          initialSlide={rounds?.length - 2}
-          spaceBetween={16}
-          slidesPerView="auto"
-          freeMode={{
-            enabled: true,
-            sticky: true,
-            momentumRatio: 0.25,
-            momentumVelocityRatio: 0.5,
-          }}
-          centeredSlides
-          mousewheel
-          keyboard
-          resizeObserver
-        >
-          {rounds?.map((round, index) => {
-            if (round?.roundNumber == 0) return null;
-            const {
-              roundLock,
-              roundNumber,
-              roundEnded,
-              startTimeStamp,
-              endTimeStamp,
-              secondTokenPrice,
-              firstTokenPrice,
-              poolAmount,
-            } = round;
-            const roundStatus = roundEnded
-              ? "EXPIRED"
-              : roundLock
-              ? "LIVE"
-              : "NEXT";
-            const isRoundLive = roundLock && !roundEnded;
-            const isLastRound = !roundLock && !roundEnded;
-            const percentageRationCalulation =
-              isRoundLive &&
-              tokenPercentageChangeCalculation(
-                firstTokenPrice,
+      <Box position="relative">
+        <StyledSwiper>
+          <Swiper
+            initialSlide={rounds?.length - 2}
+            spaceBetween={16}
+            slidesPerView="auto"
+            freeMode={{
+              enabled: true,
+              sticky: true,
+              momentumRatio: 0.25,
+              momentumVelocityRatio: 0.5,
+            }}
+            centeredSlides
+            mousewheel
+            keyboard
+            resizeObserver
+          >
+            {rounds?.map((round, index) => {
+              if (round?.roundNumber == 0) return null;
+              const {
+                roundLock,
+                roundNumber,
+                roundEnded,
+                startTimeStamp,
+                endTimeStamp,
                 secondTokenPrice,
-                currentPairsPriceFeeds
-              );
+                firstTokenPrice,
+                poolAmount,
+              } = round;
+              const roundStatus = roundEnded
+                ? "EXPIRED"
+                : roundLock
+                ? "LIVE"
+                : "NEXT";
+              const isRoundLive = roundLock && !roundEnded;
+              const isLastRound = !roundLock && !roundEnded;
+              const percentageRationCalulation =
+                isRoundLive &&
+                tokenPercentageChangeCalculation(
+                  firstTokenPrice,
+                  secondTokenPrice,
+                  currentPairsPriceFeeds
+                );
 
-            const currentRoundUser = users?.[roundNumber];
-            const isCurrentUserClaimDone = currentRoundUser
-              ? !(currentRoundUser?.isWinner && !currentRoundUser?.claim)
-              : roundEnded;
-            const isExpired =
-              !isRoundLive && !isLastRound && isCurrentUserClaimDone;
-            const showLiveRoundLoader =
-              isRoundLive && isliveRoundCompleted(endTimeStamp);
+              const currentRoundUser = users?.[roundNumber];
+              const isCurrentUserClaimDone = currentRoundUser
+                ? !(currentRoundUser?.isWinner && !currentRoundUser?.claim)
+                : roundEnded;
+              const isExpired =
+                !isRoundLive && !isLastRound && isCurrentUserClaimDone;
+              const showLiveRoundLoader =
+                isRoundLive && isliveRoundCompleted(endTimeStamp);
 
-            const roundPayoutRation =
-              percentageRationCalulation &&
-              percentageRationCalulation?.payoutRatio;
+              const roundPayoutRation =
+                percentageRationCalulation &&
+                percentageRationCalulation?.payoutRatio;
 
-            return (
-              <SwiperSlide key={roundNumber}>
-                {({ isActive }) => (
-                  <Box
-                    m="2"
-                    borderWidth="1px"
-                    backgroundClip={"content-box, border-box"}
-                    backgroundSize="cover"
-                    boxSizing="border-box"
-                    borderRadius="5px"
-                    boxShadow="0 0 3px 5px rgba(0, 0, 0, 0.5)"
-                    border="2px solid transparent"
-                    background={
-                      !roundEnded
-                        ? "linear-gradient(90deg, rgba(236,201,75,1) 0%, rgba(221,107,32,1) 100%)"
-                        : "none"
-                    }
-                    position="relative"
-                  >
+              return (
+                <SwiperSlide key={roundNumber}>
+                  {({ isActive }) => (
                     <Box
-                      h="320px"
-                      background={siteColorCodes?.roundCardBackground}
+                      m="2"
+                      borderWidth="1px"
+                      backgroundClip={"content-box, border-box"}
+                      backgroundSize="cover"
+                      boxSizing="border-box"
+                      borderRadius="5px"
+                      boxShadow="0 0 3px 5px rgba(0, 0, 0, 0.5)"
+                      border="2px solid transparent"
+                      background={
+                        !roundEnded
+                          ? "linear-gradient(90deg, rgba(236,201,75,1) 0%, rgba(221,107,32,1) 100%)"
+                          : "none"
+                      }
+                      position="relative"
                     >
-                      <RoundHeader
-                        roundNumber={roundNumber}
-                        roundStatus={roundStatus}
-                        endTimeStamp={endTimeStamp}
-                        startTimeStamp={startTimeStamp}
-                        isRoundLive={isRoundLive}
-                      />
-                      <Flex
-                        mb="2"
-                        justifyContent="space-between"
-                        alignItems="center"
+                      <Box
+                        h="320px"
+                        background={siteColorCodes?.roundCardBackground}
                       >
-                        <TokenWrapper
-                          path={pairInfo.tokenImage1}
-                          pair={pairInfo[1]}
-                          color={siteColorCodes.firstTokenColor}
-                          tokenRoundFixedPrice={firstTokenPrice}
-                          showLiveRoundLoader={showLiveRoundLoader}
-                          payoutRatio={roundPayoutRation?.[0]}
+                        <RoundHeader
+                          roundNumber={roundNumber}
+                          roundStatus={roundStatus}
+                          endTimeStamp={endTimeStamp}
+                          startTimeStamp={startTimeStamp}
+                          isRoundLive={isRoundLive}
                         />
-                        {!showLiveRoundLoader && (
-                          <RoundInfoWrapper
-                            endTimeStamp={endTimeStamp}
-                            poolAmount={ethers.utils.formatEther(poolAmount)}
-                            winner={() => roundWinner(round)}
-                            roundEnded={roundEnded}
-                            isLastRound={isLastRound}
+                        <Flex
+                          mb="2"
+                          justifyContent="space-between"
+                          alignItems="center"
+                        >
+                          <TokenWrapper
+                            path={pairInfo.tokenImage1}
+                            pair={pairInfo[1]}
+                            color={siteColorCodes.firstTokenColor}
+                            tokenRoundFixedPrice={firstTokenPrice}
+                            showLiveRoundLoader={showLiveRoundLoader}
+                            payoutRatio={roundPayoutRation?.[0]}
+                          />
+                          {!showLiveRoundLoader && (
+                            <RoundInfoWrapper
+                              endTimeStamp={endTimeStamp}
+                              poolAmount={ethers.utils.formatEther(poolAmount)}
+                              winner={() => roundWinner(round)}
+                              roundEnded={roundEnded}
+                              isLastRound={isLastRound}
+                            />
+                          )}
+                          {showLiveRoundLoader && (
+                            <LiveRoundCalculationLoader />
+                          )}
+                          <TokenWrapper
+                            path={pairInfo.tokenImage2}
+                            pair={pairInfo[2]}
+                            color={siteColorCodes.secondTokenColor}
+                            tokenRoundFixedPrice={secondTokenPrice}
+                            showLiveRoundLoader={showLiveRoundLoader}
+                            payoutRatio={roundPayoutRation?.[1]}
+                          />
+                        </Flex>
+                        {isRoundLive && !showLiveRoundLoader && (
+                          <RoundProgressWrapper
+                            progress={percentageRationCalulation}
                           />
                         )}
-                        {showLiveRoundLoader && <LiveRoundCalculationLoader />}
-                        <TokenWrapper
-                          path={pairInfo.tokenImage2}
-                          pair={pairInfo[2]}
-                          color={siteColorCodes.secondTokenColor}
-                          tokenRoundFixedPrice={secondTokenPrice}
-                          showLiveRoundLoader={showLiveRoundLoader}
-                          payoutRatio={roundPayoutRation?.[1]}
+                        <ButtonWrapper
+                          round={round}
+                          pair={pair}
+                          users={users}
+                          pairRound={roundNumber}
+                          allRounds={rounds}
                         />
-                      </Flex>
-                      {isRoundLive && !showLiveRoundLoader && (
-                        <RoundProgressWrapper
-                          progress={percentageRationCalulation}
-                        />
-                      )}
-                      <ButtonWrapper
-                        round={round}
-                        pair={pair}
-                        users={users}
-                        pairRound={roundNumber}
-                        allRounds={rounds}
-                      />
+                      </Box>
+                      {isExpired && <ExpiredRound />}
                     </Box>
-                    {isExpired && <ExpiredRound />}
-                  </Box>
-                )}
-              </SwiperSlide>
-            );
-          })}
-        </Swiper>
-      </StyledSwiper>
-      {rounds?.length > 0 && (
-        <UserDrawerBoard
-          contract={cryptoPredictionContract}
-          signer={signer}
-          pair={pair}
-          rounds={allRounds}
-        />
-      )}
+                  )}
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
+        </StyledSwiper>
+        {rounds?.length > 0 && (
+          <UserDrawerBoard
+            contract={cryptoPredictionContract}
+            signer={signer}
+            pair={pair}
+            rounds={allRounds}
+          />
+        )}
+      </Box>
     </RoundContext.Provider>
   );
 };
