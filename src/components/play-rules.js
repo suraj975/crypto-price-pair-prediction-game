@@ -20,7 +20,8 @@ const PlayInfoHeader = () => {
 
 const PlayStepsCard = ({ step, title, description }) => {
   return (
-    <Box
+    <Flex
+      flexDir="column"
       borderRadius="10px"
       p="10"
       mb="2"
@@ -34,7 +35,7 @@ const PlayStepsCard = ({ step, title, description }) => {
         </Text>
         <Text>{description}</Text>
       </Stack>
-    </Box>
+    </Flex>
   );
 };
 
@@ -109,7 +110,7 @@ export const HowToPlay = () => {
       bg="black"
       flexDir="column"
       alignItems="center"
-      paddingX={["2%", "20%"]}
+      paddingX={["2%", "8%"]}
       paddingY="10"
     >
       <PlayInfoHeader />

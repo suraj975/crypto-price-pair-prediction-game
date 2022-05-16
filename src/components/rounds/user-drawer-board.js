@@ -130,7 +130,7 @@ function UserDrawerBoard(props) {
         onClick={onOpen}
         position="absolute"
         zIndex="1"
-        top={["18%", "11%"]}
+        top={["110%", "-25%"]}
         right="0"
         borderTopRightRadius="0px"
         borderBottomRightRadius="0px"
