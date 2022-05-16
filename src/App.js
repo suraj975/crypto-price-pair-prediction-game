@@ -27,10 +27,10 @@ const LandingPage = () => {
         alignItems="center"
         flex="2"
       >
-        <Heading textAlign="left" size="2xl" w="450px" color="orange">
+        <Heading size="2xl" w="450px" color="orange">
           Place your bet on your favourite crypto pair and win rounds.
         </Heading>
-        <Button w="400px" mt="100px" colorScheme="orange" onClick={onOpen}>
+        <Button w="430px" mt="100px" colorScheme="orange" onClick={onOpen}>
           Connect Wallet
         </Button>
       </Flex>
