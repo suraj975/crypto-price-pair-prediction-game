@@ -20,7 +20,7 @@ const TabListHeaders = ({ pairCount }) => {
     .fill(0)
     .map((pair, index) => index + 1);
   return (
-    <TabList fontWeight="bold">
+    <TabList mb="5" fontWeight="bold">
       {pairArray?.map((pair, index) => {
         return (
           <Tab fontWeight="bold" color="white" key={index}>
