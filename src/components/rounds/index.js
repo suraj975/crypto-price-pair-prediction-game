@@ -89,6 +89,7 @@ const TokenWrapper = ({
   payoutRatio,
   showLiveRoundLoader,
 }) => {
+  const payoutRatioWithoutInfinty = payoutRatio === Infinity ? 0 : payoutRatio;
   return (
     <Flex marginX="3" flexDir="column">
       <img src={path} height="70px" width="70px" />
@@ -100,7 +101,7 @@ const TokenWrapper = ({
       </Text>
       {payoutRatio && !showLiveRoundLoader && (
         <Text mt="1" fontWeight="bold">
-          {payoutRatio}x
+          {payoutRatioWithoutInfinty}x
         </Text>
       )}
     </Flex>
