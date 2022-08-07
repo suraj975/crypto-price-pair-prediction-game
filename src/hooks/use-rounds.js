@@ -30,6 +30,7 @@ export const useRounds = (contract, signer, pair, number) => {
     const splicedData = filterData.splice(0, 5);
     setRounds(splicedData.reverse());
   };
+  //
 
   React.useEffect(() => {
     getData();
